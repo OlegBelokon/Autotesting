@@ -12,7 +12,11 @@ target/
 *.iws
 *.iml
 *.ipr
-
+# Игнорируем файл с локальными секретами
+.env
+# Локальные данные Jenkins
+jenkins_home/
+*.log
 ### Eclipse ###
 .apt_generated
 .classpath
