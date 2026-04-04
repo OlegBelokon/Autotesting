@@ -1,3 +1,5 @@
 кнопка входа: "#login-btn"
 поле поиска: "input[name='q']"
 кнопка поиска: "button[type='submit']"
+результаты поиска: "#search .g"
+первый: "#search .g:first-child h3"
