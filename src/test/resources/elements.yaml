@@ -1,0 +1,3 @@
+кнопка входа: "#login-btn"
+поле поиска: "input[name='q']"
+кнопка поиска: "button[type='submit']"
