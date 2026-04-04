@@ -7,9 +7,7 @@ import io.cucumber.junit.platform.engine.Constants;
 @Suite
 @IncludeEngines("cucumber")
 @SelectClasspathResource("features")
-@ConfigurationParameter(
-        key = Constants.FILTER_TAGS_PROPERTY_NAME,
-        value = "@00001"
-)
+@ConfigurationParameter(key = Constants.GLUE_PROPERTY_NAME, value = "stepdefinitions")
+@ConfigurationParameter(key = Constants.FILTER_TAGS_PROPERTY_NAME, value = "")
 public class TestRunner {
 }
