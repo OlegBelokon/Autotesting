@@ -6,7 +6,7 @@ import io.cucumber.java.ru.Тогда;
 import io.restassured.response.Response;
 import io.restassured.specification.RequestSpecification;
 
-import org.junit.jupiter.api.Assertions;
+import utils.ConfigLoader;
 
 import static io.restassured.RestAssured.given;
 import static org.hamcrest.Matchers.*;
