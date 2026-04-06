@@ -1,8 +1,8 @@
 Username: "#user-name"
 Password: "#password"
 Login: "#login-button"
-error-message-container: "#login_button_container > div > form > div.error-message-container.error > h3"
-products: "#header_container > div.header_secondary_container > span"
+error-message-container: ".error-message-container.error h3"
+products: "#header_container .title"
 # elements.yaml (или urls.yaml)
 urls:
   Магазин: https://www.saucedemo.com/
