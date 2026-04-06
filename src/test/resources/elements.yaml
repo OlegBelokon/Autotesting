@@ -1,5 +1,9 @@
-кнопка входа: "#login-btn"
-поле поиска: "input[name='q']"
-кнопка поиска: "button[type='submit']"
-результаты поиска: "#search .g"
-первый: "#search .g:first-child h3"
+поле логина: "#user-name"
+поле пароля: "#password"
+
+# elements.yaml (или urls.yaml)
+urls:
+  Магазин: https://www.saucedemo.com/
+
+
+

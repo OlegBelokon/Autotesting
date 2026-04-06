@@ -3,13 +3,32 @@ package stepdefinitions;
 import com.codeborne.selenide.Condition;
 import io.cucumber.java.ru.И;
 import io.cucumber.java.ru.Когда;
+import io.cucumber.java.ru.Пусть;
 import io.cucumber.java.ru.Тогда;
+import io.cucumber.java.uk.Дано;
 import utils.ElementMapper;
 
 import static com.codeborne.selenide.Selenide.*;
 
-public class CommonSteps {
+public class UISteps {
 
+    //Открываем URL
+    @Дано("открываем страницу {string}")
+    public void openPage(String nameOrUrl) {
+        String url;
+        if (nameOrUrl.startsWith("http://") || nameOrUrl.startsWith("https://")) {
+            url = nameOrUrl; // полный URL
+        } else {
+            url = UrlMapper.getUrl(nameOrUrl); // имя из конфига
+        }
+        open(url);
+    }
+    @Тогда("ввожу в поле {string} текст из переменной {string}")
+    public void enterTextFromSecret(String elementName, String secretKey) {
+        String selector = ElementMapper.getSelector(elementName);
+        String value = SecretLoader.get(secretKey);
+        $(selector).setValue(value);
+    }
     // === Нажатия на элементы ===
     @Когда("Я нажимаю на кнопку {string}")
     public void clickButton(String buttonName) {
