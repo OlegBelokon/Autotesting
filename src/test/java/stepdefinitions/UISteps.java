@@ -30,7 +30,7 @@ public class UISteps {
         $(selector).setValue(value);
     }
     // === Нажатия на элементы ===
-    @Когда("Я нажимаю на кнопку {string}")
+    @И("нажимаю на кнопку {string}")
     public void clickButton(String buttonName) {
         $(ElementMapper.getSelector(buttonName)).click();
     }

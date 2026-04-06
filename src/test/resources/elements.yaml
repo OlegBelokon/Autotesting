@@ -1,5 +1,6 @@
-поле логина: "#user-name"
-поле пароля: "#password"
+Username: "#user-name"
+Password: "#password"
+Login: "#login-button"
 
 # elements.yaml (или urls.yaml)
 urls:

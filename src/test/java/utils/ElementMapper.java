@@ -18,7 +18,7 @@ public class ElementMapper {
     }
 
     public static String getSelector(String elementName) {
-        String selector = map.get(elementName.toLowerCase());
+        String selector = map.get(elementName); // без toLowerCase()
         if (selector == null) {
             throw new IllegalArgumentException("Элемент не найден: " + elementName);
         }
