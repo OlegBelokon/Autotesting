@@ -3,7 +3,17 @@ Password: "#password"
 Login: "#login-button"
 error-message-container: ".error-message-container.error h3"
 products: "#header_container .title"
-# elements.yaml (или urls.yaml)
+корзина: "#shopping_cart_container > a"
+карточка_товара: ".inventory_item"
+# Для списка всех названий
+название: ".inventory_item_name"
+# Для списка всех цен
+цена: ".inventory_item_price"
+# Для списка всех кнопко Add to Card
+Add to Card: ".btn_inventory"
+корзина товаров: ".cart_list"
+имя товара в корзине: ".inventory_item_name"
+цена овара в корзине: ".inventory_item_price"
 urls:
   Магазин: https://www.saucedemo.com/
 
