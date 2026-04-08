@@ -11,6 +11,9 @@ import com.jayway.jsonpath.spi.json.JacksonJsonProvider;
 import com.jayway.jsonpath.spi.mapper.JacksonMappingProvider;
 import net.minidev.json.JSONArray;
 
+import java.io.InputStream;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.Map;
 
 public class JsonUtil {
@@ -89,5 +92,26 @@ public class JsonUtil {
             doc.set(JsonPath.compile(path), value);
         }
         return doc.jsonString();
+    }
+    /**
+     * Загружает JSON из файла.
+     * Поддерживает:
+     * - абсолютный путь (C:/projects/file.json)
+     * - относительный путь от корня classpath (json/order.json)
+     * - относительный путь от рабочей директории (./src/test/resources/json/order.json)
+     */
+    public static String loadJsonFromFile(String filePath) throws Exception {
+        // Пробуем сначала как абсолютный путь или путь относительно рабочей директории
+        java.nio.file.Path path = Paths.get(filePath);
+        if (Files.exists(path)) {
+            return new String(Files.readAllBytes(path));
+        }
+        // Пробуем как ресурс classpath
+        try (InputStream is = JsonUtil.class.getClassLoader().getResourceAsStream(filePath)) {
+            if (is == null) {
+                throw new RuntimeException("Файл не найден: " + filePath + " (проверено classpath и файловая система)");
+            }
+            return new String(is.readAllBytes());
+        }
     }
 }

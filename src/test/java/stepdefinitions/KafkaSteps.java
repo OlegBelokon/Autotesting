@@ -52,6 +52,21 @@ public class KafkaSteps {
         consumer.close();
         assertTrue(found, "Не найдено сообщение с параметрами: " + expectedParams);
     }
+    /**
+     * Отправка JSON сообщения, загруженного из файла, с применением параметров из таблицы.
+     * Пример:
+     *   Я отправляю в топик "test-topic" json сообщение "json/order.json" c параметрами
+     *     | order.id      | 200 |
+     *     | customer.name | Anna |
+     */
+    @Given("Я отправляю в топик {string} json сообщение {string} c параметрами")
+    public void sendJsonFileWithParams(String topic, String filePath, DataTable table) throws Exception {
+        Map<String, String> params = toMap(table);
+        String baseJson = JsonUtil.loadJsonFromFile(filePath);
+        String finalJson = JsonUtil.applyParameters(baseJson, params);
+        producer.sendSync(topic, null, finalJson);
+        producer.close();
+    }
 
     private Map<String, String> toMap(DataTable table) {
         Map<String, String> map = new HashMap<>();
