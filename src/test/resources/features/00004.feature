@@ -1,23 +1,15 @@
 # language: ru
-@api
+@api @kafka
 Функция: Тестирование REST API (jsonplaceholder)
 
   Сценарий: Получение списка пользователей
-    Допустим я настроил базовый URL API "https://jsonplaceholder.typicode.com"
-    Когда я отправляю GET запрос на "/users"
-    Тогда статус ответа 200
-    И массив "$" содержит 10 элементов
-    И в ответе поле "[0].name" равно "Leanne Graham"
+    * я отправляю в топик "test-topic" json сообщение c параметрами
+      | order.id       | 100500 |
+      | customer.name  | Иван   |
+      | customer.age   | 30     |
+      | items[0].name  | Книга  |
+      | items[0].price | 499    |
 
-  Сценарий: Создание нового поста
-    Допустим я настроил базовый URL API "https://jsonplaceholder.typicode.com"
-    Когда я отправляю POST запрос на "/posts" с телом:
-      """
-      {
-        "title": "foo",
-        "body": "bar",
-        "userId": 1
-      }
-      """
-    Тогда статус ответа 201
-    И в ответе поле "title" равно "foo"
+    * в топике "test-topic" появляется сообщение с параметрами
+      | order.id      | 100500 |
+      | customer.name | Иван   |

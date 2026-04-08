@@ -25,7 +25,7 @@ public class KafkaSteps {
      *     | customer.name | John    |
      *     | order.total   | 299.99  |
      */
-    @Given("Я отправляю в топик {string} json сообщение c параметрами")
+    @Given("я отправляю в топик {string} json сообщение c параметрами")
     public void sendJsonMessageWithParams(String topic, DataTable table) throws Exception {
         Map<String, String> params = toMap(table);
         // Базовый JSON — пустой объект, к которому применяются параметры
