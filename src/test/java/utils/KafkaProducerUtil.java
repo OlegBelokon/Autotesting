@@ -1,6 +1,5 @@
 package utils;
 
-import org.apache.kafka.clients.producer.KafkaProducer;
 import org.apache.kafka.clients.producer.ProducerRecord;
 import org.apache.kafka.clients.producer.RecordMetadata;
 
@@ -8,7 +7,7 @@ import java.util.Properties;
 import java.util.concurrent.Future;
 
 public class KafkaProducerUtil {
-    private final KafkaProducer<String, String> producer;
+    private final org.apache.kafka.clients.producer.KafkaProducer<String, String> producer;
 
     public KafkaProducerUtil() {
         this(KafkaConfigLoader.getBootstrapServers());
@@ -20,7 +19,7 @@ public class KafkaProducerUtil {
         props.put("key.serializer", "org.apache.kafka.common.serialization.StringSerializer");
         props.put("value.serializer", "org.apache.kafka.common.serialization.StringSerializer");
         props.put("acks", "all");
-        this.producer = new KafkaProducer<>(props);
+        this.producer = new org.apache.kafka.clients.producer.KafkaProducer<>(props);
     }
 
     public Future<RecordMetadata> send(String topic, String key, String value) {

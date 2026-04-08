@@ -15,13 +15,7 @@ public class ApiSteps {
     private RequestSpecification request;
     private Response response;
     //private String baseUrl = "https://jsonplaceholder.typicode.com"; // можно вынести в конфиг
-    private String baseUrl = ConfigLoader.getProperty("api.base.url");
-
-    @Допустим("я настроил базовый URL API {string}")
-    public void setBaseUrl(String url) {
-        this.baseUrl = url;
-        request = given().baseUri(baseUrl);
-    }
+    //private String baseUrl = ConfigLoader.getProperty("api.base.url");
 
     @Когда("я отправляю GET запрос на {string}")
     public void sendGetRequest(String endpoint) {
