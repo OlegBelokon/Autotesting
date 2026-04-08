@@ -15,8 +15,6 @@ services:
       - jenkins_home:/var/jenkins_home
       - /var/run/docker.sock:/var/run/docker.sock
     restart: unless-stopped
-    depends_on:
-      - kafka  # дожидаемся запуска Kafka
 
   zookeeper:
     image: confluentinc/cp-zookeeper:latest
@@ -29,7 +27,7 @@ services:
     restart: unless-stopped
 
   kafka:
-    image: confluentinc/cp-kafka:latest
+    image: confluentinc/cp-kafka:latest   # ← правильный образ
     container_name: kafka
     depends_on:
       - zookeeper
@@ -44,6 +42,11 @@ services:
       KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
       KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
     restart: unless-stopped
+    # Опционально: ограничение памяти, если нужно
+    deploy:
+      resources:
+        limits:
+          memory: 1G
 
 volumes:
   jenkins_home:
