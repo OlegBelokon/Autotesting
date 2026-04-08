@@ -8,6 +8,7 @@ import utils.KafkaConsumerUtil;
 import utils.KafkaProducerUtil;
 
 import java.time.Duration;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -37,20 +38,46 @@ public class KafkaSteps {
     @Then("в топике {string} появляется сообщение с параметрами")
     public void verifyMessageWithParams(String topic, DataTable table) throws Exception {
         Map<String, String> expectedParams = toMap(table);
+        System.out.println("[KAFKA] Ожидаемые параметры: " + expectedParams);
+
         consumer = new KafkaConsumerUtil(topic);
         boolean found = false;
         long start = System.currentTimeMillis();
-        while (System.currentTimeMillis() - start < 5000 && !found) {
+        long timeout = 5000;
+        List<String> allMessages = new ArrayList<>();
+
+        while (System.currentTimeMillis() - start < timeout && !found) {
             List<String> messages = consumer.pollMessages(Duration.ofSeconds(1));
-            for (String msg : messages) {
-                if (JsonUtil.matchesParameters(msg, expectedParams)) {
-                    found = true;
-                    break;
+            if (!messages.isEmpty()) {
+                System.out.println("[KAFKA] Получено сообщений: " + messages.size());
+                for (String msg : messages) {
+                    allMessages.add(msg);
+                    System.out.println("[KAFKA] Сообщение: " + msg);
+                    if (JsonUtil.matchesParameters(msg, expectedParams)) {
+                        found = true;
+                        System.out.println("[KAFKA] ✅ Сообщение подходит! Текст: " + msg);
+                        break;
+                    } else {
+                        System.out.println("[KAFKA] ❌ Сообщение не подходит: " + msg);
+                    }
                 }
+            } else {
+                System.out.println("[KAFKA] Ожидание сообщений...");
             }
         }
+
         consumer.close();
-        assertTrue(found, "Не найдено сообщение с параметрами: " + expectedParams);
+
+        if (!found) {
+            System.err.println("[KAFKA] ОШИБКА: Не найдено сообщение с параметрами " + expectedParams);
+            System.err.println("[KAFKA] Все полученные сообщения (" + allMessages.size() + "):");
+            for (int i = 0; i < allMessages.size(); i++) {
+                System.err.println("  " + (i+1) + ": " + allMessages.get(i));
+            }
+            assertTrue(false, "Не найдено сообщение с параметрами: " + expectedParams);
+        } else {
+            System.out.println("[KAFKA] Проверка пройдена успешно.");
+        }
     }
     /**
      * Отправка JSON сообщения, загруженного из файла, с применением параметров из таблицы.
