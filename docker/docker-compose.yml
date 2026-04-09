@@ -41,5 +41,16 @@ services:
       KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
     restart: unless-stopped
 
+    zkui:
+      image: qnib/zkui
+      container_name: zkui
+      ports:
+        - "9090:9090"
+      environment:
+        ZKUI_ZK_SERVER: zookeeper:2181
+      depends_on:
+        - zookeeper
+      restart: unless-stopped
+
 volumes:
   jenkins_home:
