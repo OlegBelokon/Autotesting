@@ -72,5 +72,17 @@ services:
       - kafka
     restart: unless-stopped
 
+  postgres:
+      image: postgres:15-alpine
+      ports:
+        - "5432:5432"
+      environment:
+        POSTGRES_DB: myapp
+        POSTGRES_USER: user
+        POSTGRES_PASSWORD: pass
+      volumes:
+        - postgres_data:/var/lib/postgresql/data
+
 volumes:
   jenkins_home:
+  postgres_data:
