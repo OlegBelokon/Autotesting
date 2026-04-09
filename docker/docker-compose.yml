@@ -41,7 +41,7 @@ services:
       KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
     restart: unless-stopped
 
-    zkui:
+  zkui:
       image: qnib/zkui
       container_name: zkui
       ports:
