@@ -15,31 +15,34 @@ import static org.junit.jupiter.api.Assertions.*;
 
 public class DatabaseSteps {
 
-    private String lastSql; // хранит последний сохранённый SQL
+    // Хранилище SQL-запросов по имени
+    private static final Map<String, String> sqlStorage = new HashMap<>();
 
-    // 1. Сохранить SQL запрос
+    // 1. Сохранить SQL запрос с именем (DocString)
     @Given("сохранить SQL запрос как {string}")
-    public void saveSqlQuery(String sql) {
-        this.lastSql = sql;
+    public void saveSqlQuery(String name, String sql) {
+        sqlStorage.put(name, sql);
+        System.out.println("[DB] SQL сохранён с именем '" + name + "':\n" + sql);
     }
 
-    // 2. Отправить во временную БД запрос (использует сохранённый)
-    @Given("отправить во временную базу данных запрос")
-    public void executeTempSql() throws SQLException {
-        assertNotNull(lastSql, "Нет сохранённого SQL. Используйте шаг 'сохранить SQL запрос'.");
-        TempDatabaseUtil.executeUpdate(lastSql);
+    // 2. Отправить во временную БД запрос по имени
+    @Given("отправить во временную базу данных запрос {string}")
+    public void executeTempSqlByName(String name) throws SQLException {
+        String sql = getSqlByName(name);
+        TempDatabaseUtil.executeUpdate(sql);
     }
 
-    // 3. Отправить в постоянную БД запрос (использует сохранённый)
-    @Given("отправить в базу данных запрос")
-    public void executePermSql() throws SQLException {
-        assertNotNull(lastSql, "Нет сохранённого SQL. Используйте шаг 'сохранить SQL запрос'.");
-        PermDatabaseUtil.executeUpdate(lastSql);
+    // 3. Отправить в постоянную БД запрос по имени
+    @Given("отправить в базу данных запрос {string}")
+    public void executePermSqlByName(String name) throws SQLException {
+        String sql = getSqlByName(name);
+        PermDatabaseUtil.executeUpdate(sql);
     }
 
-    // 4. Отправить во временную БД запрос и проверить параметры
+    // 4. Отправить во временную БД запрос по имени и проверить параметры
     @Then("отправить во временную базу данных запрос {string} и проверить параметры")
-    public void executeTempSqlAndCheckParams(String sql, DataTable table) throws SQLException {
+    public void executeTempSqlAndCheckParams(String name, DataTable table) throws SQLException {
+        String sql = getSqlByName(name);
         List<Map<String, Object>> results = TempDatabaseUtil.executeQuery(sql);
         assertFalse(results.isEmpty(), "Запрос не вернул ни одной записи.");
         Map<String, String> expected = toMap(table);
@@ -47,9 +50,10 @@ public class DatabaseSteps {
         assertTrue(match, "Не найдена запись, соответствующая параметрам: " + expected);
     }
 
-    // 5. Отправить в постоянную БД запрос и проверить параметры
+    // 5. Отправить в постоянную БД запрос по имени и проверить параметры
     @Then("отправить в базу данных запрос {string} и проверить параметры")
-    public void executePermSqlAndCheckParams(String sql, DataTable table) throws SQLException {
+    public void executePermSqlAndCheckParams(String name, DataTable table) throws SQLException {
+        String sql = getSqlByName(name);
         List<Map<String, Object>> results = PermDatabaseUtil.executeQuery(sql);
         assertFalse(results.isEmpty(), "Запрос не вернул ни одной записи.");
         Map<String, String> expected = toMap(table);
@@ -57,7 +61,16 @@ public class DatabaseSteps {
         assertTrue(match, "Не найдена запись, соответствующая параметрам: " + expected);
     }
 
-    // Вспомогательный метод для проверки соответствия строки ожидаемым параметрам
+    // Вспомогательный метод для получения SQL из хранилища
+    private String getSqlByName(String name) {
+        String sql = sqlStorage.get(name);
+        if (sql == null) {
+            throw new IllegalArgumentException("SQL запрос с именем '" + name + "' не найден. Сначала сохраните его через шаг 'сохранить SQL запрос как \"name\"'.");
+        }
+        return sql;
+    }
+
+    // Проверка соответствия строки ожидаемым параметрам
     private boolean rowMatches(Map<String, Object> row, Map<String, String> expected) {
         for (Map.Entry<String, String> entry : expected.entrySet()) {
             String column = entry.getKey();
@@ -70,6 +83,7 @@ public class DatabaseSteps {
         return true;
     }
 
+    // Преобразование DataTable в Map
     private Map<String, String> toMap(DataTable table) {
         Map<String, String> map = new HashMap<>();
         List<List<String>> rows = table.asLists(String.class);
