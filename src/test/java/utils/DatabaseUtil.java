@@ -18,7 +18,13 @@ public class DatabaseUtil {
             throw new IllegalStateException("Database configuration not found in application.properties");
         }
     }
+    static {
+        System.out.println("DB URL: " + ConfigLoader.getDbUrl());
+        System.out.println("DB User: " + ConfigLoader.getDbUser());
+        System.out.println("DB Pass: " + ConfigLoader.getDbPassword());
+    }
     public static Connection getConnection() throws SQLException {
+
         return DriverManager.getConnection(URL, USER, PASSWORD);
     }
 
