@@ -1,6 +1,9 @@
 package stepdefinitions;
 
 import io.cucumber.datatable.DataTable;
+import io.cucumber.java.After;
+import io.cucumber.java.Before;
+import io.cucumber.java.Scenario;
 import io.cucumber.java.en.Given;
 import io.cucumber.java.en.Then;
 import utils.DatabaseUtil;
@@ -27,10 +30,8 @@ public class DatabaseSteps {
     @Given("отправить во временную базу данных запрос {string}")
     public void executeTempSqlByName(String name) throws SQLException {
         String sql = getSqlByName(name);
-        // Превращаем CREATE TABLE в CREATE TEMP TABLE
         if (sql.trim().toUpperCase().startsWith("CREATE TABLE")) {
             sql = sql.replaceFirst("(?i)CREATE TABLE", "CREATE TEMP TABLE");
-            System.out.println("[DB] Преобразовано во временную таблицу:\n" + sql);
         }
         DatabaseUtil.executeUpdate(sql);
     }
@@ -62,6 +63,30 @@ public class DatabaseSteps {
         Map<String, String> expected = toMap(table);
         boolean match = results.stream().anyMatch(row -> rowMatches(row, expected));
         assertTrue(match, "Не найдена запись, соответствующая параметрам: " + expected);
+    }
+
+    @Before
+    public void openConnection() {
+        // Принудительно откроем соединение перед сценарием
+        try {
+            DatabaseUtil.getConnection();
+        } catch (SQLException e) {
+            throw new RuntimeException("Не удалось открыть соединение с БД", e);
+        }
+    }
+
+    @After
+    public void cleanup(Scenario scenario) {
+        try {
+            DatabaseUtil.executeUpdate("DROP TABLE IF EXISTS users");
+        } catch (SQLException e) {
+            // игнорируем, если таблицы нет
+        }
+        try {
+            DatabaseUtil.closeConnection();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
     }
 
     private String getSqlByName(String name) {

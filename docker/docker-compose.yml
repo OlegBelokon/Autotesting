@@ -76,7 +76,7 @@ services:
     image: postgres:15-alpine
     container_name: postgres
     ports:
-      - "5432:5432"
+      - "5433:5432"          # ← меняем 5432 на 5433
     environment:
       POSTGRES_DB: myapp
       POSTGRES_USER: postgres

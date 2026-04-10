@@ -20,6 +20,12 @@
       INSERT INTO users (name, age)
       VALUES ('Иван', 30)
       """
+    * отправить во временную базу данных запрос "insert_ivan"
+    * сохранить SQL запрос как "select_ivan"
+      """
+      SELECT name, age FROM users
+      WHERE name = 'Иван'
+      """
     * отправить во временную базу данных запрос "select_ivan" и проверить параметры
-      | name | age |
-      | Иван | 30  |
+      | name | Иван |
+      | age  | 30   |

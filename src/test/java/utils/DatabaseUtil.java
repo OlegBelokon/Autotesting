@@ -7,39 +7,39 @@ import java.util.List;
 import java.util.Map;
 
 public class DatabaseUtil {
-    // Параметры подключения из docker-compose (порт 5432)
-    private static final String URL = ConfigLoader.getDbUrl();
-    private static final String USER = ConfigLoader.getDbUser();
-    private static final String PASSWORD = ConfigLoader.getDbPassword();
+    private static Connection connection = null;
 
-    static {
-        // Проверка, что параметры загружены (опционально)
-        if (URL == null || USER == null || PASSWORD == null) {
-            throw new IllegalStateException("Database configuration not found in application.properties");
-        }
-    }
-    static {
-        System.out.println("DB URL: " + ConfigLoader.getDbUrl());
-        System.out.println("DB User: " + ConfigLoader.getDbUser());
-        System.out.println("DB Pass: " + ConfigLoader.getDbPassword());
-    }
     public static Connection getConnection() throws SQLException {
+        if (connection == null || connection.isClosed()) {
+            String url = ConfigLoader.getDbUrl();
+            String user = ConfigLoader.getDbUser();
+            String password = ConfigLoader.getDbPassword();
+            connection = DriverManager.getConnection(url, user, password);
+            System.out.println("[DB] Новое соединение открыто");
+        }
+        return connection;
+    }
 
-        return DriverManager.getConnection(URL, USER, PASSWORD);
+    public static void closeConnection() throws SQLException {
+        if (connection != null && !connection.isClosed()) {
+            connection.close();
+            System.out.println("[DB] Соединение закрыто");
+        }
+        connection = null;
     }
 
     public static List<Map<String, Object>> executeQuery(String sql) throws SQLException {
-        try (Connection conn = getConnection();
-             Statement stmt = conn.createStatement();
+        try (Statement stmt = getConnection().createStatement();
              ResultSet rs = stmt.executeQuery(sql)) {
             return resultSetToList(rs);
         }
     }
 
     public static int executeUpdate(String sql) throws SQLException {
-        try (Connection conn = getConnection();
-             Statement stmt = conn.createStatement()) {
-            return stmt.executeUpdate(sql);
+        try (Statement stmt = getConnection().createStatement()) {
+            int affected = stmt.executeUpdate(sql);
+            System.out.println("[DB] Выполнен UPDATE/INSERT, затронуто строк: " + affected);
+            return affected;
         }
     }
 
