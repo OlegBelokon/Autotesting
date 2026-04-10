@@ -2,7 +2,8 @@ package utils;
 
 import io.restassured.RestAssured;
 import io.restassured.response.Response;
-import io.restassured.specification.RequestSpecification;
+
+import java.util.Map;
 
 import static io.restassured.RestAssured.given;
 
@@ -13,53 +14,61 @@ public class RestApiUtil {
         RestAssured.baseURI = BASE_URL;
     }
 
-    public static Response sendGet(String endpointName, Object... pathParams) {
-        String endpoint = ConfigLoader.get("rest.endpoint." + endpointName);
-        if (endpoint == null) {
+    // Замена плейсхолдеров <ключ> в URL на значения из map
+    public static String resolveUrl(String endpointName, Map<String, String> pathParams) {
+        String urlTemplate = ConfigLoader.get("rest.endpoint." + endpointName);
+        if (urlTemplate == null) {
             throw new IllegalArgumentException("Эндпоинт не найден: " + endpointName);
         }
-        RequestSpecification request = given();
-        if (pathParams.length > 0) {
-            request.pathParams(buildPathParams(pathParams));
+        String resolved = urlTemplate;
+        for (Map.Entry<String, String> entry : pathParams.entrySet()) {
+            String placeholder = "<" + entry.getKey() + ">";
+            resolved = resolved.replace(placeholder, entry.getValue());
         }
-        return request.when().get(endpoint);
+        if (resolved.matches(".*<[^>]+>.*")) {
+            throw new IllegalArgumentException("В URL остались незаменённые плейсхолдеры: " + resolved);
+        }
+        return resolved;
     }
 
-    public static Response sendPost(String endpointName, String bodyJson, Object... pathParams) {
-        String endpoint = ConfigLoader.get("rest.endpoint." + endpointName);
-        if (endpoint == null) {
-            throw new IllegalArgumentException("Эндпоинт не найден: " + endpointName);
-        }
-        RequestSpecification request = given()
+    // GET с path-параметрами
+    public static Response sendGet(String endpointName, Map<String, String> pathParams) {
+        String url = resolveUrl(endpointName, pathParams);
+        return given().when().get(url);
+    }
+
+    // POST/PUT/DELETE на полный URL (без замены плейсхолдеров)
+    public static Response sendPostToUrl(String url, String bodyJson) {
+        return given()
                 .header("Content-Type", "application/json")
-                .body(bodyJson);
-        if (pathParams.length > 0) {
-            request.pathParams(buildPathParams(pathParams));
-        }
-        return request.when().post(endpoint);
+                .body(bodyJson)
+                .when().post(url);
     }
 
-    public static Response sendPut(String endpointName, String bodyJson, Object... pathParams) {
-        String endpoint = ConfigLoader.get("rest.endpoint." + endpointName);
-        if (endpoint == null) {
-            throw new IllegalArgumentException("Эндпоинт не найден: " + endpointName);
-        }
-        RequestSpecification request = given()
+    public static Response sendPutToUrl(String url, String bodyJson) {
+        return given()
                 .header("Content-Type", "application/json")
-                .body(bodyJson);
-        if (pathParams.length > 0) {
-            request.pathParams(buildPathParams(pathParams));
-        }
-        return request.when().put(endpoint);
+                .body(bodyJson)
+                .when().put(url);
     }
 
-    private static java.util.Map<String, Object> buildPathParams(Object... params) {
-        java.util.Map<String, Object> map = new java.util.HashMap<>();
-        for (int i = 0; i < params.length; i += 2) {
-            if (i + 1 < params.length) {
-                map.put(params[i].toString(), params[i + 1]);
-            }
-        }
-        return map;
+    public static Response sendDeleteToUrl(String url) {
+        return given().when().delete(url);
+    }
+
+    // POST/PUT/DELETE с path-параметрами (строят URL из endpointName)
+    public static Response sendPost(String endpointName, Map<String, String> pathParams, String bodyJson) {
+        String url = resolveUrl(endpointName, pathParams);
+        return sendPostToUrl(url, bodyJson);
+    }
+
+    public static Response sendPut(String endpointName, Map<String, String> pathParams, String bodyJson) {
+        String url = resolveUrl(endpointName, pathParams);
+        return sendPutToUrl(url, bodyJson);
+    }
+
+    public static Response sendDelete(String endpointName, Map<String, String> pathParams) {
+        String url = resolveUrl(endpointName, pathParams);
+        return sendDeleteToUrl(url);
     }
 }
