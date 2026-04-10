@@ -28,6 +28,18 @@ public class ConfigLoader {
         return servers;
     }
 
+    public static String getDbUrl() {
+        return get("db.url");
+    }
+
+    public static String getDbUser() {
+        return get("db.user");
+    }
+
+    public static String getDbPassword() {
+        return get("db.password");
+    }
+
     public static String getConsumerGroupId() {
         return get("kafka.consumer.group.id");
     }

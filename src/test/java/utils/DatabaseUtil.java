@@ -8,10 +8,16 @@ import java.util.Map;
 
 public class DatabaseUtil {
     // Параметры подключения из docker-compose (порт 5432)
-    private static final String URL = "jdbc:postgresql://localhost:5432/myapp";
-    private static final String USER = "user";
-    private static final String PASSWORD = "pass";
+    private static final String URL = ConfigLoader.getDbUrl();
+    private static final String USER = ConfigLoader.getDbUser();
+    private static final String PASSWORD = ConfigLoader.getDbPassword();
 
+    static {
+        // Проверка, что параметры загружены (опционально)
+        if (URL == null || USER == null || PASSWORD == null) {
+            throw new IllegalStateException("Database configuration not found in application.properties");
+        }
+    }
     public static Connection getConnection() throws SQLException {
         return DriverManager.getConnection(URL, USER, PASSWORD);
     }
