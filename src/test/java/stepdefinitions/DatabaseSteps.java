@@ -8,6 +8,7 @@ import io.cucumber.java.en.Given;
 import io.cucumber.java.en.Then;
 import utils.DatabaseUtil;
 
+import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.List;
@@ -75,26 +76,17 @@ public class DatabaseSteps {
         }
     }
 
-    @After("@tempDb")
-    public void cleanup(Scenario scenario) {
-        try {
-            DatabaseUtil.executeUpdate("DROP TABLE IF EXISTS users");
-        } catch (SQLException e) {
-            // игнорируем, если таблицы нет
-        }
-        try {
-            DatabaseUtil.closeConnection();
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
+    @Before("@db")
+    public void beginTransaction() throws SQLException {
+        DatabaseUtil.getConnection().setAutoCommit(false);
     }
+
     @After("@db")
-    public void cleanUp() {
-        try {
-            DatabaseUtil.executeUpdate("TRUNCATE TABLE testers, users, orders RESTART IDENTITY");
-        } catch (SQLException e) {
-            System.err.println("[DB] Ошибка очистки: " + e.getMessage());
-        }
+    public void rollbackTransaction() throws SQLException {
+        Connection conn = DatabaseUtil.getConnection();
+        conn.rollback();
+        conn.setAutoCommit(true);
+        DatabaseUtil.closeConnection();
     }
 
     private String getSqlByName(String name) {
