@@ -3,6 +3,9 @@ package stepdefinitions;
 import com.codeborne.selenide.Condition;
 import com.codeborne.selenide.ElementsCollection;
 import com.codeborne.selenide.SelenideElement;
+import io.cucumber.java.After;
+import io.cucumber.java.Before;
+import io.cucumber.java.Scenario;
 import io.cucumber.java.ru.И;
 import io.cucumber.java.ru.Когда;
 import io.cucumber.java.ru.Тогда;
@@ -80,5 +83,14 @@ public class UISteps {
         String priceSelector = ElementMapper.getSelector(attributeName);
         element.$(priceSelector).shouldHave(Condition.text(expectedPrice));
         System.out.println("Цена товара: " + expectedPrice);
+    }
+    @Before
+    public void setUp(Scenario scenario) {
+
+    }
+
+    @After
+    public void tearDown(Scenario scenario) {
+
     }
 }
