@@ -16,7 +16,15 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 public class RestSteps {
     private static final Map<String, String> urlStorage = new HashMap<>();
     private static final Map<String, Response> responseStorage = new HashMap<>();
+    private static final Map<String, String> pathParamsStorage = new HashMap<>(); // хранилище параметров пути
     private Response lastResponse;
+
+    // ======================= Сохранение параметров пути =======================
+    @Given("сохраняю параметр пути {string} как {string}")
+    public void savePathParam(String key, String value) {
+        pathParamsStorage.put(key, value);
+        System.out.println("[REST] Сохранён параметр пути: " + key + " = " + value);
+    }
 
     // ======================= GET =======================
     @Given("отправляю GET запрос {string} с параметрами пути и сохраняю ответ как {string}")
@@ -26,6 +34,24 @@ public class RestSteps {
         lastResponse = response;
         responseStorage.put(saveKey, response);
         System.out.println("[REST] GET " + endpointName + " -> статус: " + response.getStatusCode());
+    }
+
+    @Given("отправляю GET запрос {string} и сохраняю ответ как {string}")
+    public void sendGetWithoutParams(String endpointName, String saveKey) {
+        Map<String, String> emptyParams = new HashMap<>();
+        Response response = RestApiUtil.sendGet(endpointName, emptyParams);
+        lastResponse = response;
+        responseStorage.put(saveKey, response);
+        System.out.println("[REST] GET " + endpointName + " -> статус: " + response.getStatusCode());
+    }
+
+    @Given("отправляю GET запрос {string} с сохранёнными параметрами пути и сохраняю ответ как {string}")
+    public void sendGetWithStoredPathParams(String endpointName, String saveKey) {
+        Map<String, String> pathParams = new HashMap<>(pathParamsStorage);
+        Response response = RestApiUtil.sendGet(endpointName, pathParams);
+        lastResponse = response;
+        responseStorage.put(saveKey, response);
+        System.out.println("[REST] GET " + endpointName + " (сохранённые параметры) -> статус: " + response.getStatusCode());
     }
 
     // ======================= POST =======================
@@ -52,7 +78,6 @@ public class RestSteps {
         System.out.println("[REST] POST " + url + " -> статус: " + response.getStatusCode());
     }
 
-    // POST без предварительного сохранения (когда нет path-параметров)
     @Given("отправляю POST запрос {string} из файла {string} с параметрами JSON")
     public void sendPostDirect(String endpointName, String jsonFilePath, DataTable jsonParamsTable) throws Exception {
         Map<String, String> jsonParams = toMap(jsonParamsTable);

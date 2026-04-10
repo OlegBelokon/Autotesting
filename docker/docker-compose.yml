@@ -97,6 +97,27 @@ services:
         - postgres
       restart: unless-stopped
 
+  wiremock:
+        image: wiremock/wiremock:latest
+        container_name: wiremock
+        ports:
+          - "8082:8080"
+        volumes:
+          - ./wiremock:/home/wiremock
+        command: --verbose
+        restart: unless-stopped
+
+  wiremock-gui:
+          image: holomekc/wiremock-gui:latest
+          container_name: wiremock-gui
+          ports:
+            - "8083:8080"
+          volumes:
+            - ./wiremock:/home/wiremock
+          environment:
+            - JAVA_OPTS=-Dwiremock.recording.snapshotEnabled=true
+          restart: unless-stopped
+
 volumes:
   jenkins_home:
   postgres_data:
