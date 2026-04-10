@@ -75,7 +75,7 @@ public class DatabaseSteps {
         }
     }
 
-    @After
+    @After("@tempDb")
     public void cleanup(Scenario scenario) {
         try {
             DatabaseUtil.executeUpdate("DROP TABLE IF EXISTS users");
@@ -86,6 +86,14 @@ public class DatabaseSteps {
             DatabaseUtil.closeConnection();
         } catch (SQLException e) {
             e.printStackTrace();
+        }
+    }
+    @After("@db")
+    public void cleanUp() {
+        try {
+            DatabaseUtil.executeUpdate("TRUNCATE TABLE testers, users, orders RESTART IDENTITY");
+        } catch (SQLException e) {
+            System.err.println("[DB] Ошибка очистки: " + e.getMessage());
         }
     }
 

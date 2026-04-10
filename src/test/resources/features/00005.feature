@@ -1,5 +1,5 @@
 # language: ru
-@00005 @db
+@00005 @tempDb
 Функция: Тестирование PostgreSQL
 
   Предыстория:
